@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Core - Shrike Documentation</title>
+    <style type="text/css">
+      h3 {
+        margin-top: 10px;
+      }
+      .default {
+        color: gray;
+        font-size: 0.8em;
+        vertical-align: top;
+      }
+      .default::before {
+        content: "(Default: "
+      }
+      .default::after {
+        content: ")"
+      }
+      .opt::before {
+        color: gray;
+        content: "Optional ";
+        font-size: 0.8em;
+        vertical-align: top;
+      }
+      .passed::before {
+        color: gray;
+        content: "Passed: ";
+      }
+      .this::before {
+        color: gray;
+        content: "This: ";
+      }
+      .type {
+        color: gray;
+        font-size: 0.8em;
+        vertical-align: top;
+      }
+      .type::after {
+        content: " | ";
+      }
+      .type:last-child::after {
+        content: "";
+      }
+      #functions > li {
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Functions</h1>
+    <ul id="contents">
+      <li><a href="#Shrike">Shrike</a></li>
+      <li><a href="#Shrike-merge">Shrike.merge</a></li>
+      <li><a href="#Shrike-extend">Shrike.extend</a></li>
+      <li><a href="#Shrike-clone">Shrike.clone</a></li>
+      <li><a href="#Shrike-object">Shrike.object</a></li>
+      <li><a href="#Shrike-first">Shrike.first</a></li>
+      <li><a href="#Shrike-inspect">Shrike.inspect</a></li>
+      <li><a href="#Shrike-toQueryString">Shrike.toQueryString</a></li>
+      <li><a href="#Shrike-bind">Shrike.bind</a></li>
+      <li><a href="#Shrike-isArray">Shrike.isArray</a></li>
+      <li><a href="#Shrike-computedStyle">Shrike.computedStyle</a></li>
+      <li><a href="#Shrike-position">Shrike.position</a></li>
+      <li><a href="#Shrike-size">Shrike.size</a></li>
+      <li><a href="#Shrike-create">Shrike.create</a></li>
+      <li><a href="#Shrike-declaration">Shrike.declaration</a></li>
+      <li><a href="#Shrike-modify">Shrike.modify</a></li>
+      <li><a href="#Shrike-attr">Shrike.attr</a></li>
+      <li><a href="#Shrike-style">Shrike.style</a></li>
+    </ul>
+    <ul id="functions">
+      <li id="Shrike">
+        <h2 class="name">Shrike</h2>
+        <span class="desc">Finds elements matching a CSS selector. Equivilent to the Puma function.</span>
+        <h3 class="argshead">Arguments</h3>
+        <ul class="args">
+          <li>A CSS selector <span class="type">String</span></li>
+          <li>Context to execute the query in <span class="type">DOMElement</span><span class="type">DOMDocument</span></li>
+        </ul>
+        <h3 class="rethead">Returns</h3>
+        <span class="ret">All elements matching the CSS selector <span class="type">Array</span></span>
+        <h3 class="exhead">Example</h3>
+        <pre class="ex">
+          var nodes = Shrike('p.example');
+        </pre>
+      </li>
+      <li id="Shrike-merge">
+        <h2 class="name">Shrike.merge</h2>
+        <span class="desc">Extends an object with properties from other objects.</span>
+        <h3 class="argshead">Arguments</h3>
+        <ul class="args">
+          <li>Object to merge the properties of subsequent arguments into <span class="type">Object</span></li>
+          <li><span class="varargs">Objects to merge with the first argument</span> <span class="type">Object</span></li>
+          <li><span class="opt"> <span class="default">Empty function</span> Function to apply to values put into the first object 
+<span class="this">The object whose properties are being copied from</span> 
+<span class="passed">The value and key currently being copied</span></span> <span class="type">Function</span></li>
+        </ul>
+        <h3 class="rethead">Returns</h3>
+        <span class="ret">The first argument <span class="type">Object</span></span>
+        <h3 class="exhead">Example</h3>
+        <pre class="ex">
+          var obj1 = {'a': 1}, obj2 = {'b': 2}, obj3 = {'c': 3};
+          Shrike.merge(obj1, obj2, obj3, function (value) { return ++value; });
+          // obj1: {'a': 2, 'b': 3, 'c': 4}
+        </pre>
+      </li>
+      <li id="Shrike-extend">
+        <h2 class="name">Shrike.extend</h2>
+        <span class="desc">Creates a new object with the properties of all argument objects.</span>
+        <h3 class="argshead">Arguments</h3>
+        <ul class="args">
+          <li><span class="varargs">Objects to mix the properties of into a new object</span> <span class="type">Object</span></li>
+          <li><span class="opt"> <span class="default">Empty function</span> Function to apply to values put into the new object 
+<span class="this">The object whose properties are being copied from</span> 
+<span class="passed">The value and key currently being copied</span></span> <span class="type">Function</span></li>
+        </ul>
+        <h3 class="rethead">Returns</h3>
+        <span class="ret">A new object with all the properties of the argument objects</span>
+        <h3 class="exhead">Example</h3>
+        <pre class="ex">
+          var newObj = Shrike.extend({'a': 1}, {'b': 2}, {'c': 3});
+          // newObj: {'a': 1, 'b': 2, 'c': 3}
+        </pre>
+      </li>
+      <li id="Shrike-clone">
+        <h2 class="name">Shrike.clone</h2>
+        <span class="desc">Creates a non-deep copy of an object.</span>
+        <h3 class="argshead">Arguments</h3>
+        <ul class="args">
+          <li>The object to clone <span class="type">Object</span></li>
+        </ul>
+        <h3 class="rethead">Returns</h3>
+        <span class="ret">A non-deep copy of the object. <span class="type">Object</span></span>
+        <h3 class="exhead">Example</h3>
+        <pre class="ex">
+          var obj1 = {strange: 'fish'}, obj2 = Shrike.clone(obj1);
+          obj1.strange = 'trash';
+          // obj2.strange: "fish"
+        </pre>
+      </li>
+      <li id="Shrike-object">
+        <h2 class="name">Shrike.object</h2>
+        <span class="desc">Untangles JavaScript&apos;s inheritance mechanism. See 
+<a href="http://javascript.crockford.com/prototypal.html">http://javascript.crockford.com/prototypal.html</a>. Essentially creates a 
+new object that inherits from the passed object.</span>
+        <h3 class="argshead">Arguments</h3>
+        <ul class="args">
+          <li>The object to inherit from <span class="type">Object</span></li>
+        </ul>
+        <h3 class="rethead">Returns</h3>
+        <span class="ret">An object that inherits from the passed object <span class="type">Object</span></span>
+        <h3 class="exhead">Example</h3>
+        <pre class="ex">
+          var obj = {hello: function () { return 'Hello'; }},
+          newObj = Shrike.object(obj);
+          newObj.hey = function () { return 'Hey!'; };
+          newObj.hello(); // "Hello"
+        </pre>
+      </li>
+      <li id="Shrike-first">
+        <h2 class="name">Shrike.first</h2>
+        <span class="desc">Returns the first defined value from its arguments.</span>
+        <h3 class="argshead">Arguments</h3>
+        <ul class="args">
+          <li><span class="varargs">Values to take the first defined value of</span> <span class="type">Any</span></li>
+        </ul>
+        <h3 class="rethead">Returns</h3>
+        <span class="ret">The first defined value, or null of all the values are undefined <span class="type">Any</span></span>
+        <h3 class="exhead">Example</h3>
+        <pre class="ex">
+          var undefined;
+          Shrike.first(undefined, false, 'wheat', undefined, 42); // Returns false
+        </pre>
+      </li>
+      <li id="Shrike-inspect">
+        <h2 class="name">Shrike.inspect</h2>
+        <span class="desc">Joins the keys and values of an object into a string.</span>
+        <h3 class="argshead">Arguments</h3>
+        <ul class="args">
+          <li>The object to stringify <span class="type">Object</span></li>
+          <li><span class="opt"> <span class="default">&quot;: &quot;</span> The string to separate the idividual keys from values</span> <span class="type">String</span></li>
+          <li><span class="opt"> <span class="default">&quot;\n&quot;</span> The string to separate pairs of keys and values</span> <span class="type">String</span></li>
+        </ul>
+        <h3 class="rethead">Returns</h3>
+        <span class="ret">A string consisting of the keys and values of the object <span class="type">String</span></span>
+        <h3 class="exhead">Example</h3>
+        <pre class="ex">
+          var obj = {duck: "quack", cow: "moo", haggis: "haggis sounds"};
+          Shrike.inspect(obj); // "duck: quack\ncow: moo\nhaggis: haggis sounds"
+        </pre>
+      </li>
+    </ul>
+  </body>
+</html>

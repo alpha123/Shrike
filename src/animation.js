@@ -7,24 +7,26 @@ function animate(elem, prop, options) {
     if (typeof options == 'string' || typeof options == 'number')
         options = {to: options};
     for (var vars = {
-        from: Shrike.first(options.from, Shrike.computedStyle(elem, prop)),
+        from: '' + Shrike.first(options.from, Shrike.computedStyle(elem, prop)),
         to: '' + options.to,
-        speed: Shrike.first(options.speed, 5) / 10,
-        finishHandlers: options.finish ? options.finish instanceof Array ?
+        speed: Shrike.first(options.speed, options.increment, 5) / 10,
+        delay: Shrike.first(options.delay, 20),
+        finishHandlers: options.finish ? Shrike.isArray(options.finish) ?
         options.finish : [options.finish] : [],
-        updateHandlers: options.update ? options.update instanceof Array ?
+        updateHandlers: options.update ? Shrike.isArray(options.update) ?
         options.update : [options.update] : []
     }, prefix = [], timer, currValue, target, down, divBy = 1,
-    i = 0, j = 0, l = vars.from.length, ch; i < l; ++i) {
+    i = 0, j = 0, l = vars.from.length, ch, ch2; i < l; ++i) {
         ch = vars.from.charAt(i);
-        if (ch > '/' && ch < ':')
+        ch2 = vars.from.charAt(i + 1);
+        if ((ch == '-' && ch2 > '/' && ch2 < ':') || (ch > '/' && ch < ':'))
             break;
         prefix.push(ch);
     }
     prefix = prefix.join('');
     currValue = parseFloat(vars.from.substring(i));
     target = vars.to.substring(i);
-    if (target < 1) {
+    if (target < 1 && target > 0) {
         for (l = target.substring(target.indexOf('.') + 1).length; j < l; ++j)
             divBy *= 10;
     }
@@ -35,6 +37,7 @@ function animate(elem, prop, options) {
         var intify = parseInt, k = 0, l;
         if ((!down && currValue / divBy >= target) || (down && currValue / divBy <= target)) {
             clearInterval(timer);
+            elem.style[prop] = vars.to;
             for (l = vars.finishHandlers.length; k < l; ++k)
                 vars.finishHandlers[k](elem);
         }
@@ -44,18 +47,20 @@ function animate(elem, prop, options) {
             for (l = vars.updateHandlers.length; k < l; ++k)
                 vars.updateHandlers[k](elem);
         }
-    }, 20);
+    }, vars.delay);
 }
 
 var opacity = {
     'opacity': function (elem, options) {
         if (typeof options == 'string' || typeof options == 'number')
             options = {to: options};
-        animate(elem, 'opacity', options);
+        animate(elem, 'opacity', Shrike.extend(options, {
+          to: options.to / 100
+        }));
         var vars = Shrike.extend(options, {
-            from: 'alpha(opacity=100)',
+            from: options.from !== void 0 ? 'alpha(opacity=' + parseInt(options.from) + ')' : 'alpha(opacity=100)',
             to: 'alpha(opacity=' + options.to + ')',
-            speed: (options.speed || 5) * 10
+            speed: Shrike.first(options.speed, options.increment, 5) * 10
         });
         animate(elem, 'filter', vars);
     }
@@ -68,21 +73,22 @@ drag = {
     
     'start': function (elem, value, vars) {
         vars.startHandlers = vars.startHandlers || [];
-        [].push.apply(vars.startHandlers, value instanceof Array ? value : [value]);
+        [].push.apply(vars.startHandlers, Shrike.isArray(value) ? value : [value]);
     },
     
     'finish': function (elem, value, vars) {
         vars.finishHandlers = vars.finishHandlers || [];
-        [].push.apply(vars.finishHandlers, value instanceof Array ? value : [value]);
+        [].push.apply(vars.finishHandlers, Shrike.isArray(value) ? value : [value]);
     }
 };
 
 function dragCleanup(elem, vars) {
     function dragEvt(e) {
         e = e || window.event;
+        vars.startHandlers = vars.startHandlers || [];
         for (var i = 0, l = vars.startHandlers.length; i < l; ++i)
             vars.startHandlers[i](elem, e);
-        doDrag(elem, e, vars.finishHandlers);
+        doDrag(elem, e, vars.finishHandlers || []);
         return false;
     }
     if (vars.handle) {

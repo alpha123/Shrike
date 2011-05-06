@@ -9,8 +9,8 @@ function addReadyStateChange(request, successHandlers, errorHandlers, elem) {
             if (successHandlers.length == 0)
                 elem.innerHTML = request.responseText;
             for (i = 0, l = successHandlers.length; i < l; ++i) {
-                result = successHandlers[i](elem, request);
-                if (typeof result == 'string') {
+                result = successHandlers[i](request, elem);
+                if (typeof result == 'string' && elem) {
                     if (i == 0)
                         elem.innerHTML = '';
                     elem.innerHTML += result;
@@ -19,7 +19,7 @@ function addReadyStateChange(request, successHandlers, errorHandlers, elem) {
         }
         else {
             for (i = 0, l = errorHandlers.length; i < l; ++i)
-                errorHandlers[i](elem, request);
+                errorHandlers[i](request, elem);
         }
     };
 }

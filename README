@@ -1,0 +1,31 @@
+USAGE
+
+Load the modules you want or the full shrike.js into your page with a <script> tag:
+<script type="text/javascript" src="shrike.js"></script>
+
+
+
+
+MODULES
+
+core.js
+is the Shrike core and is required by all other modules. Requires the Puma CSS selector engine.
+
+events.js
+is the event system, with Shrike.addEvent/removeEvent, Shrike.ready, Shrike.on, and Shrike.off.
+
+ajax.js
+contains the Ajax functionality.
+
+animation.js
+contains animation and drag&drop functionality. Requires events.js.
+
+shrike.js
+contains all of the above modules and the Puma CSS selector engine.
+
+
+
+
+FUNCTIONS
+
+See the docs/ folder, which isn't finished yet. I recommend just browsing the source, it's pretty straightforward.
