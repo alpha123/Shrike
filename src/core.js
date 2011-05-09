@@ -91,10 +91,6 @@ attr = {
     
     'html': function (elem, value) {
         elem.innerHTML = value;
-    },
-    
-    'for': function (elem, value) { // Work around IE bug
-        elem.htmlFor = value;
     }
 };
 
@@ -263,9 +259,9 @@ Shrike.merge(Shrike, {
             arg = arguments[i++];
             if (typeof arg == 'string')
                 elem.innerHTML += arg;
-            else if (arg.nodeType !== undefined)
+            else if (arg.nodeType)
                 frag.appendChild(arg.cloneNode(true));
-            else if (arg.clone !== undefined && arg.node !== undefined)
+            else if (arg.node)
                 frag.appendChild(arg.clone ? arg.node.cloneNode(true) : arg.node);
             else
                 Shrike.attr(elem, arg);

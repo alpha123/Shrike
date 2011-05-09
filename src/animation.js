@@ -7,7 +7,7 @@ function animate(elem, prop, options) {
     if (typeof options == 'string' || typeof options == 'number')
         options = {to: options};
     for (var vars = {
-        from: '' + Shrike.first(options.from, Shrike.computedStyle(elem, prop)),
+        from: '' + Shrike.first(options.from, elem.style[prop], Shrike.computedStyle(elem, prop)),
         to: '' + options.to,
         speed: Shrike.first(options.speed, options.increment, 5) / 10,
         delay: Shrike.first(options.delay, 20),
