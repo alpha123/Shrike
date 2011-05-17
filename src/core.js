@@ -190,11 +190,6 @@ Shrike.merge(Shrike, {
         return str.join(linesep || '\n');
     },
     
-    toQueryString: function (obj) {
-        var euc = encodeURIComponent;
-        return Shrike.inspect(obj, '=', '&', euc, euc);
-    },
-    
     bind: function (func, thisObj, preArgs, postArgs) { // Intentionally not compatible with ES5
         return function () {
             var args = [].slice.call(arguments);

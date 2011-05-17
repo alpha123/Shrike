@@ -24,6 +24,11 @@ function addReadyStateChange(request, successHandlers, errorHandlers, elem) {
     };
 }
 
+Shrike.toQueryString = function (obj) {
+        var euc = encodeURIComponent;
+        return Shrike.inspect(obj, '=', '&', euc, euc);
+};
+
 Shrike.ajax = function (selectors, props) {
     var successHandlers = [], errorHandlers = [], options = {},
     ajax = {
