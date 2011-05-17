@@ -1,13 +1,13 @@
-(function (Shrike) {
+(function (Shrike, undefined) {
 
 function animate(elem, prop, options) {
     prop = prop.replace(/\-(\w)/g, function (_, $1) { return $1.toUpperCase(); });
-    if (options.from !== void 0)
+    if (options.from !== undefined)
         elem.style[prop] = options.from;
     if (typeof options == 'string' || typeof options == 'number')
         options = {to: options};
     for (var vars = {
-        from: '' + Shrike.first(options.from, elem.style[prop], Shrike.computedStyle(elem, prop)),
+        from: '' + Shrike.first(options.from, Shrike.computedStyle(elem, prop)),
         to: '' + options.to,
         speed: Shrike.first(options.speed, options.increment, 5) / 10,
         delay: Shrike.first(options.delay, 20),
@@ -58,7 +58,7 @@ var opacity = {
           to: options.to / 100
         }));
         var vars = Shrike.extend(options, {
-            from: options.from !== void 0 ? 'alpha(opacity=' + parseInt(options.from) + ')' : 'alpha(opacity=100)',
+            from: options.from !== undefined ? 'alpha(opacity=' + parseInt(options.from) + ')' : 'alpha(opacity=100)',
             to: 'alpha(opacity=' + options.to + ')',
             speed: Shrike.first(options.speed, options.increment, 5) * 10
         });
@@ -68,7 +68,7 @@ var opacity = {
 
 drag = {
     'handle': function (elem, value, vars) {
-        vars.handle = typeof value == 'string' ? Puma(value) : value;
+        vars.handle = typeof value == 'string' ? Puma(value, elem) : value;
     },
     
     'start': function (elem, value, vars) {
