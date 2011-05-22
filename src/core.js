@@ -163,7 +163,7 @@ Shrike.merge(Shrike, {
     },
     
     // From http://javascript.crockford.com/prototypal.html
-    object: function (obj) {
+    inherit: function (obj) {
         function F() { }
         F.prototype = obj;
         return new F();

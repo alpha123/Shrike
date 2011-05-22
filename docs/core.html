@@ -55,7 +55,7 @@
       <li><a href="#Shrike-merge">Shrike.merge</a></li>
       <li><a href="#Shrike-extend">Shrike.extend</a></li>
       <li><a href="#Shrike-clone">Shrike.clone</a></li>
-      <li><a href="#Shrike-object">Shrike.object</a></li>
+      <li><a href="#Shrike-inherit">Shrike.inherit</a></li>
       <li><a href="#Shrike-first">Shrike.first</a></li>
       <li><a href="#Shrike-inspect">Shrike.inspect</a></li>
       <li><a href="#Shrike-toQueryString">Shrike.toQueryString</a></li>
@@ -140,8 +140,8 @@
           // obj2.strange: "fish"
         </pre>
       </li>
-      <li id="Shrike-object">
-        <h2 class="name">Shrike.object</h2>
+      <li id="Shrike-inherit">
+        <h2 class="name">Shrike.inherit</h2>
         <span class="desc">Untangles JavaScript&apos;s inheritance mechanism. See 
 <a href="http://javascript.crockford.com/prototypal.html">http://javascript.crockford.com/prototypal.html</a>. Essentially creates a 
 new object that inherits from the passed object.</span>
@@ -154,7 +154,7 @@ new object that inherits from the passed object.</span>
         <h3 class="exhead">Example</h3>
         <pre class="ex">
           var obj = {hello: function () { return 'Hello'; }},
-          newObj = Shrike.object(obj);
+          newObj = Shrike.inherit(obj);
           newObj.hey = function () { return 'Hey!'; };
           newObj.hello(); // "Hello"
         </pre>
