@@ -154,12 +154,7 @@ Shrike.merge(Shrike, {
     },
     
     clone: function (obj) {
-        var newObj = {}, i;
-        for (i in obj) {
-            if (obj.hasOwnProperty(i))
-                newObj[i] = obj[i];
-        }
-        return newObj;
+        return Shrike.merge({}, obj);
     },
     
     // From http://javascript.crockford.com/prototypal.html
