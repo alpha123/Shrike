@@ -1,3 +1,9 @@
+NOTE
+This thing is kinda in a late beta stage; it's quite stable but the API may change until the 1.0 release.
+
+
+
+
 USAGE
 
 Load the modules you want or the full shrike.js into your page with a <script> tag:
@@ -28,4 +34,4 @@ contains all of the above modules and the Puma CSS selector engine.
 
 FUNCTIONS
 
-See the docs/ folder, which isn't finished yet. I recommend just browsing the source, it's pretty straightforward.
+See the docs/ folder, which isn't nearly finished yet (wait a year or two). I recommend just browsing the source, it's pretty straightforward.
