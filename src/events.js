@@ -1,30 +1,39 @@
 (function (Shrike) {
 
-Shrike.addEvent = function (elem, event, func, thisObj, argArray) {
-    thisObj = thisObj || elem;
-    argArray = argArray || [];
-    var evt = elem[event], old = evt;
-    if (!evt || !evt.handlers) {
+Shrike.addEvent = function (elem, event, func) {
+    var evt = elem[event], old = evt, fn = Shrike.bind(func, elem);
+    if (!evt || !evt.shrikeHandlers) {
         evt = elem[event] = function () {
-            var i = 0, args = argArray.slice.call(arguments), handlers = evt.handlers,
-            l = handlers.length - 1;
-            args.unshift.apply(args, argArray);
-            for (; i < l; ++i)
-                handlers[i].apply(thisObj, args);
+            for (var i = 0, args = arguments, handlers = evt.shrikeHandlers,
+            l = handlers.length - 1; i < l; ++i)
+                handlers[i].bound.apply(null, args);
             if (l + 1)
-                return handlers[i].apply(thisObj, args);
+                return handlers[i].bound.apply(null, args);
         };
-        evt.handlers = old ? [old] : [];
+        evt.shrikeHandlers = old ? [{bound: old, unbound: old}] : [];
     }
-    evt.handlers.push(func);
-    return func;
+    evt.shrikeHandlers.push({bound: fn, unbound: func});
+    return {
+        fn: fn,
+        
+        attach: function (elm, evt) {
+            Shrike.addEvent(elm || elem, evt || event, fn);
+            return this;
+        },
+        
+        detach: function () {
+            Shrike.removeEvent(elem, event, fn);
+            return this;
+        }
+    };
 };
     
 Shrike.removeEvent = function (elem, event, func) {
     var handlers, i = 0, l;
-    if (elem[event] && (handlers = elem[event].handlers)) {
+    if (elem[event] && (handlers = elem[event].shrikeHandlers)) {
         for (l = handlers.length; i < l; ++i) {
-            if (handlers[i] == func)
+            if (handlers[i].bound == func || handlers[i].unbound == func ||
+            (func.fn && handlers[i].bound == func.fn))
                 handlers.splice(i, 1);
         }
     }
