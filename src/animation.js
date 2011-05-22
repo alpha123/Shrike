@@ -102,7 +102,9 @@ function dragCleanup(elem, vars) {
 // Technique inspired by David Gauer's simpledrag.js http://ratfactor.com/javascript-drag-and-drop
 function doDrag(elem, evt, handlers) {
     var doc = document, s = elem.style, pos = Shrike.position(elem),
-    x = Math.abs(pos.x - evt.clientX), y = Math.abs(pos.y - evt.clientY);
+    x = Math.abs(pos.x - evt.clientX), y = Math.abs(pos.y - evt.clientY),
+    mm = Shrike.addEvent(doc, 'onmousemove', mousemove),
+    mu = Shrike.addEvent(doc, 'onmouseup', mouseup);
     function mousemove(e) {
         e = e || window.event;
         s.left = e.clientX - x + 'px';
@@ -110,13 +112,11 @@ function doDrag(elem, evt, handlers) {
     }
     function mouseup(e) {
         e = e || window.event;
-        Shrike.removeEvent(doc, 'onmousemove', mousemove);
-        Shrike.removeEvent(doc, 'onmouseup', mouseup);
+        mm.detach();
+        mu.detach();
         for (var i = 0, l = handlers.length; i < l; ++i)
             handlers[i](elem, e);
     }
-    Shrike.addEvent(doc, 'onmousemove', mousemove);
-    Shrike.addEvent(doc, 'onmouseup', mouseup);
 }
 
 Shrike.animate = Shrike.declaration(opacity, animate);
