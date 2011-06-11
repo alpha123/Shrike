@@ -1,4 +1,4 @@
-(function (Shrike) {
+(function (Shrike, document) {
 
 Shrike.addEvent = function (elem, event, func) {
     var evt = elem[event], old = evt, fn = Shrike.bind(func, elem);
@@ -40,6 +40,21 @@ Shrike.removeEvent = function (elem, event, func) {
     return func;
 };
 
+Shrike.publisher = function (obj) {
+    var channels = {};
+    return Shrike.merge(obj || {}, {
+        publish: function (channel, args) {
+            if (channels[channel])
+                channels[channel].apply(null, args);
+            return this;
+        },
+        
+        subscribe: function (channel, handler) {
+            return Shrike.addEvent(channels, channel, handler);
+        }
+    });
+};
+
 var readyHandlers = [], isRunning = false;
 function ieReady() {
     isRunning = true;
@@ -73,4 +88,4 @@ Shrike.off = Shrike.declaration({}, function (elem, evt, func) {
     Shrike.removeEvent(elem, 'on' + evt, func);
 });
 
-})(Shrike);
+})(Shrike, document);
