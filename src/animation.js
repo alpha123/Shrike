@@ -15,15 +15,14 @@ function animate(elem, prop, options) {
         options.finish : [options.finish] : [],
         updateHandlers: options.update ? Shrike.isArray(options.update) ?
         options.update : [options.update] : []
-    }, prefix = [], timer, currValue, target, down, divBy = 1,
+    }, prefix = '', timer, currValue, target, down, divBy = 1,
     i = 0, j = 0, l = vars.from.length, ch, ch2; i < l; ++i) {
         ch = vars.from.charAt(i);
         ch2 = vars.from.charAt(i + 1);
         if ((ch == '-' && ch2 > '/' && ch2 < ':') || (ch > '/' && ch < ':'))
             break;
-        prefix.push(ch);
+        prefix += ch;
     }
-    prefix = prefix.join('');
     currValue = parseFloat(vars.from.substring(i));
     target = vars.to.substring(i);
     if (target < 1 && target > 0) {
