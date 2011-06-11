@@ -153,8 +153,8 @@ Shrike.merge(Shrike, {
         return Shrike.merge.apply(Shrike, args);
     },
     
-    clone: function (obj) {
-        return Shrike.merge({}, obj);
+    clone: function () {
+        return Shrike.extend.apply(Shrike, arguments);
     },
     
     // From http://javascript.crockford.com/prototypal.html
@@ -195,7 +195,7 @@ Shrike.merge(Shrike, {
     },
     
     isArray: function (obj) {
-        return {}.toString.call(obj) == '[object Array]';
+        return ({}).toString.call(obj) == '[object Array]';
     },
     
     computedStyle: function (elem, prop) {
