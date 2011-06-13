@@ -124,7 +124,7 @@ Shrike.declaration = function (obj, func, init, cleanup) {
                     cleanup(elems[m], vars);
             }
         }
-        return /^,+$/.test('' + returnval) ? Shrike : returnval;
+        return /^,+$/.test('' + returnval) ? Shrike : returnval.length == 1 ? returnval[0] : returnval;
     };
 };
 
