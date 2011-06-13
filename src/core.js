@@ -262,7 +262,7 @@ Shrike.merge(Shrike, {
     
     modify: Shrike.declaration(modify, function (elem, position, nodes) {
         var pos = parseInt(position);
-        if (pos != 'x' - 2) // NaN
+        if (!isNaN(pos))
             modify['before'](elem.children[pos - 1], nodes);
     }),
 
