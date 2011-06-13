@@ -96,9 +96,9 @@ attr = {
 
 Shrike.declaration = function (obj, func, init, cleanup) {
     return function (selectors, properties) {
-        var pairs = [], elems, props, vars, i, j = 0, k, l, m, n;
+        var pairs = [], elems, props, vars, returnval = [], i, j = 0, k, l, m, n;
         if (properties)
-            pairs.push(selectors.length === undefined ? [selectors] : selectors, properties, {});
+            pairs.push(selectors.length == undefined ? [selectors] : selectors, properties, {});
         else {
             for (i in selectors) {
                 if (selectors.hasOwnProperty(i))
@@ -115,16 +115,16 @@ Shrike.declaration = function (obj, func, init, cleanup) {
                 for (l in props) {
                     if (props.hasOwnProperty(l)) {
                         if (obj.hasOwnProperty(l) && typeof obj[l] == 'function')
-                            obj[l](elems[m], props[l], vars);
+                            returnval.push(obj[l](elems[m], props[l], vars));
                         else if (func)
-                            func(elems[m], l, props[l], vars);
+                            returnval.push(func(elems[m], l, props[l], vars));
                     }
                 }
                 if (cleanup)
                     cleanup(elems[m], vars);
             }
         }
-        return Shrike;
+        return /^,+$/.test('' + returnval) ? Shrike : returnval;
     };
 };
 
@@ -267,7 +267,7 @@ Shrike.merge(Shrike, {
     }),
 
     attr: Shrike.declaration(attr, function (elem, prop, value) {
-        if (value === null)
+        if (value == null)
             elem.removeAttribute(prop);
         else
             elem.setAttribute(prop, value);
