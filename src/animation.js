@@ -1,67 +1,42 @@
 (function (Shrike, undefined) {
 
 function animate(elem, prop, options) {
-    prop = prop.replace(/\-(\w)/g, function (_, $1) { return $1.toUpperCase(); });
-    if (options.from !== undefined)
-        elem.style[prop] = options.from;
-    if (typeof options == 'string' || typeof options == 'number')
-        options = {to: options};
-    for (var vars = {
-        from: '' + Shrike.first(options.from, Shrike.computedStyle(elem, prop)),
-        to: '' + options.to,
-        speed: Shrike.first(options.speed, options.increment, 5) / 10,
-        delay: Shrike.first(options.delay, 20),
-        finishHandlers: options.finish ? Shrike.isArray(options.finish) ?
-        options.finish : [options.finish] : [],
-        updateHandlers: options.update ? Shrike.isArray(options.update) ?
-        options.update : [options.update] : []
-    }, prefix = '', timer, currValue, target, down, divBy = 1,
-    i = 0, j = 0, l = vars.from.length, ch, ch2; i < l; ++i) {
-        ch = vars.from.charAt(i);
-        ch2 = vars.from.charAt(i + 1);
-        if ((ch == '-' && ch2 > '/' && ch2 < ':') || (ch > '/' && ch < ':'))
-            break;
-        prefix += ch;
-    }
-    currValue = parseFloat(vars.from.substring(i));
-    target = vars.to.substring(i);
-    if (target < 1 && target > 0) {
-        for (l = target.substring(target.indexOf('.') + 1).length; j < l; ++j)
-            divBy *= 10;
-    }
-    target = parseFloat(target);
-    currValue *= divBy;
-    down = target < currValue;
-    timer = setInterval(function () {
-        var intify = parseInt, k = 0, l;
-        if ((!down && currValue / divBy >= target) || (down && currValue / divBy <= target)) {
-            clearInterval(timer);
-            elem.style[prop] = vars.to;
-            for (l = vars.finishHandlers.length; k < l; ++k)
-                vars.finishHandlers[k](elem);
-        }
-        else {
-            currValue += down ? -vars.speed : vars.speed;
-            elem.style[prop] = prefix + currValue / divBy + vars.to.substring(vars.to.indexOf(target) + ('' + target).length);
-            for (l = vars.updateHandlers.length; k < l; ++k)
-                vars.updateHandlers[k](elem);
-        }
-    }, vars.delay);
+    prop = prop.replace(/\-(.)/g, function (_, $1) { return $1.toUpperCase(); });
+    var o = Shrike.extend(options, {start: undefined, update: undefined, finish: undefined}),
+    v = Viper(Shrike.merge({
+        object: elem.style,
+        property: prop,
+        from: o.from || elem.style[prop] || Shrike.computedStyle(elem, prop)
+    }, typeof o == 'object' ? o : {to: o}));
+    Shrike.each(['start', 'update', 'finish'], function (e) {
+        if (!options[e])
+            options[e] = [];
+        if (!Shrike.isArray(options[e]))
+            options[e] = [options[e]];
+        Shrike.each(options[e], function (func) {
+            func = Shrike.bind(func, elem, [v]);
+            // Tie ourselves in knots for Closure Compiler's ADVANCED_OPTIMIZATIONS
+            if (e == 'start')
+                v.startHandlers.push(func);
+            else if (e == 'update')
+                v.updateHandlers.push(func);
+            else
+                v.finishHandlers.push(func);
+        });
+    });
+    return v.start();
 }
 
-var opacity = {
+var push = [].push, opacity = {
     'opacity': function (elem, options) {
-        if (typeof options == 'string' || typeof options == 'number')
-            options = {to: options};
-        animate(elem, 'opacity', Shrike.extend(options, {
-          to: options.to / 100
-        }));
-        var vars = Shrike.extend(options, {
-            from: options.from !== undefined ? 'alpha(opacity=' + parseInt(options.from) + ')' : 'alpha(opacity=100)',
-            to: 'alpha(opacity=' + options.to + ')',
-            speed: Shrike.first(options.speed, options.increment, 5) * 10
-        });
-        animate(elem, 'filter', vars);
+        if (typeof elem.style.opacity != 'string') {
+            return animate(elem, 'filter', Shrike.merge(options, {
+              from: 'alpha(opacity=' + (options.from != undefined ? options.from * 100 :
+                  /alpha\(opacity=(\d+)\)/.exec(elem.style.filter)[1] || 100) + ')',
+              to: options.to * 100
+            }));
+        }
+        return animate(elem, 'opacity', options);
     }
 },
 
@@ -72,12 +47,12 @@ drag = {
     
     'start': function (elem, value, vars) {
         vars.startHandlers = vars.startHandlers || [];
-        [].push.apply(vars.startHandlers, Shrike.isArray(value) ? value : [value]);
+        push.apply(vars.startHandlers, Shrike.isArray(value) ? value : [value]);
     },
     
     'finish': function (elem, value, vars) {
         vars.finishHandlers = vars.finishHandlers || [];
-        [].push.apply(vars.finishHandlers, Shrike.isArray(value) ? value : [value]);
+        push.apply(vars.finishHandlers, Shrike.isArray(value) ? value : [value]);
     }
 };
 
@@ -88,7 +63,7 @@ function dragCleanup(elem, vars) {
         for (var i = 0, l = vars.startHandlers.length; i < l; ++i)
             vars.startHandlers[i](elem, e);
         doDrag(elem, e, vars.finishHandlers || []);
-        return false;
+        return false; // Prevent text from being highlighted during the drag
     }
     if (vars.handle) {
         for (var i = 0, l = vars.handle.length; i < l; ++i)
@@ -98,7 +73,7 @@ function dragCleanup(elem, vars) {
         Shrike.addEvent(elem, 'onmousedown', dragEvt);
 }
 
-// Technique inspired by David Gauer's simpledrag.js http://ratfactor.com/javascript-drag-and-drop
+// Inspired by David Gauer's simpledrag.js (http://ratfactor.com/javascript-drag-and-drop)
 function doDrag(elem, evt, handlers) {
     var doc = document, s = elem.style, pos = Shrike.position(elem),
     x = Math.abs(pos.x - evt.clientX), y = Math.abs(pos.y - evt.clientY),
