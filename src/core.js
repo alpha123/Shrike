@@ -121,7 +121,7 @@ attr = {
     },
     
     'html': function (elem, value) {
-        if (features.brokenInnerHTML && features.brokenInnerHTML(elem.nodeName))) {
+        if (features.brokenInnerHTML && features.brokenInnerHTML(elem.nodeName)) {
             Shrike.modify(elem, {'destroy': 'all'});
             usefulElement.innerHTML = '<' + elem.nodeName + '>' + value + '</' + elem.nodeName + '>';
             var frag = document.createDocumentFragment();
