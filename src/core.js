@@ -109,6 +109,14 @@ attr = {
                 for (cls = value.remove.split(' '), i = 0, l = cls.length; i < l; ++i)
                     removeAll(classes, cls[i]);
             }
+            if (value.toggle) {
+                for (cls = value.toggle.split(' '), i = 0, l = cls.length; i < l; ++i) {
+                    if (Puma.arrayIndexOf(classes, cls[i]) < 0)
+                        classes.push(cls[i]);
+                    else
+                        removeAll(classes, cls[i]);
+                }
+            }
             str = classes.join(' ');
             if (str.charAt(0) == ' ')
                 str = str.substr(1);
@@ -325,6 +333,18 @@ Shrike.merge(Shrike, {
             child = Shrike.create.apply(Shrike, slice.call(arguments, 1));
         Shrike.modify(elem, {'bottom': child});
     },
+    
+    addClass: function (elem, cls) {
+        Shrike.attr(elem, {'class': {add: cls}});
+    },
+    
+    removeClass: function (elem, cls) {
+        Shrike.attr(elem, {'class': {remove: cls}});
+    },
+    
+    toggleClass: function (elem, cls) {
+        Shrike.attr(elem, {'class': {toggle: cls}});
+    },
 
     attr: function (elems, attr) {
         if (typeof attr == 'string') {
@@ -356,6 +376,8 @@ Shrike.merge(Shrike, {
             }
             if (func.declaration) {
                 return function (props, value) {
+                    if (props == undefined && value === undefined)
+                        props = {};
                     if (value !== undefined) {
                         var name = props;
                         props = {};
@@ -365,6 +387,8 @@ Shrike.merge(Shrike, {
                     return chained;
                 };
             }
+            if (typeof func != 'function')
+                return func;
             return function () {
                 for (var args = slice.call(arguments), result = [], i = 0, l = elems.length; i < l; ++i)
                     result.push(func.apply(chained, [elems[i]].concat(args)));
