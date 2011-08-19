@@ -145,8 +145,7 @@ Shrike.off = Shrike.declaration({}, function (elem, evt, func) {
     Shrike.removeEvent(elem, 'on' + evt, func);
 });
 
-Shrike.attr.properties['on'] = function (elem, value) {
-    Shrike.on(elem, value);
+Shrike.attr.properties['on'] = Shrike.on;
 };
 
 })(Shrike, this, document, Puma, this.Wildcat);
