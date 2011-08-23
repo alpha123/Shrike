@@ -1,4 +1,4 @@
-(function (Shrike) {
+(function (Shrike, encodeURIComponent) {
 
 function addReadyStateChange(request, successHandlers, errorHandlers, elem) {
     request.onreadystatechange = function () {
@@ -24,9 +24,20 @@ function addReadyStateChange(request, successHandlers, errorHandlers, elem) {
     };
 }
 
-Shrike.toQueryString = function (obj) {
-        var euc = encodeURIComponent;
-        return Shrike.inspect(obj, '=', '&', euc, euc);
+Shrike.toQueryString = function toQueryString(obj, base) {
+    var str = [], i, v;
+    for (i in obj) {
+        if (obj.hasOwnProperty(i)) {
+            v = obj[i];
+            if (base)
+                i = base + '[' + i + ']';
+            if (typeof v == 'object')
+                str.push(toQueryString(v, i));
+            else
+                str.push(i + '=' + encodeURIComponent(v));
+        }
+    }
+    return str.join('&');
 };
 
 Shrike.ajax = function (selectors, props) {
@@ -63,4 +74,4 @@ Shrike.ajax = function (selectors, props) {
     return Shrike.declaration(ajax, function () { })(selectors, props);
 };
 
-})(Shrike);
+})(Shrike, encodeURIComponent);
