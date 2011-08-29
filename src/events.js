@@ -79,7 +79,7 @@ Shrike.normalize = function (evt) {
             this.preventDefault();
             this.stopPropagation();
         }
-    });
+    }, function (fn) { return Shrike.bind(fn, evt); });
 };
 
 var readyHandlers = [], isRunning = false, supports = [];
@@ -125,20 +125,23 @@ Shrike.match = Wildcat ? function (elem, selector) {
     return (supports[selector] ? Wildcat.match : Puma.match)(elem, selector);
 } : Puma.match;
 
+Shrike.delegate = Shrike.declaration({}, function (elem, evt, delegates) {
+    Shrike.each(delegates, function (fn, selector) {
+        Shrike.delegateEvent(elem, evt, function (e) {
+            e = e || window.event;
+            var target = e.target || e.srcElement;
+            if (Shrike.match(target, selector))
+                return target;
+        }, fn);
+    });
+});
+
 Shrike.on = Shrike.declaration({}, function (elem, evt, func) {
     evt = 'on' + evt;
     if (typeof func == 'function')
         Shrike.addEvent(elem, evt, func);
-    else {
-        Shrike.each(func, function (fn, selector) {
-            Shrike.delegateEvent(elem, evt, function (e) {
-                e = e || window.event;
-                var target = e.target || e.srcElement;
-                if (Shrike.match(target, selector))
-                    return target;
-            }, fn);
-        });
-    }
+    else
+        Shrike.delegate(func);
 });
 
 Shrike.off = Shrike.declaration({}, function (elem, evt, func) {
