@@ -1,31 +1,33 @@
 (function (window, document, Puma, undefined) {
 
 function Shrike() {
-    return Puma.apply(Puma, arguments);
+    return Puma.apply(window, arguments);
 }
 
 function nodeManipulator(func, after) {
     return function (elem, nodes) {
-        var clone = true, vars = {};
-        if (nodes.node !== undefined || nodes.nodes !== undefined) {
+        var clone = true, vars = {}, returnval = [];
+        if (nodes.node != undefined || nodes.nodes != undefined) {
             vars = nodes;
-            if (nodes.clone !== undefined)
+            if (nodes.clone != undefined)
                 clone = nodes.clone;
             nodes = nodes.node ? nodes.node : nodes.nodes;
         }
         if (!Shrike.isArray(nodes))
             nodes = [nodes];
         for (var i = 0, l = nodes.length; i < l; ++i)
-            func(elem, nodes[i], clone, vars);
+            returnval.push(func(elem, nodes[i], clone, vars));
         if (after)
             after(elem, nodes, clone, vars);
+        return Array(returnval.length) == returnval ? // Check if the array is empty
+        undefined : returnval.length == 1 ? returnval[0] : returnval;
     };
 }
 
 function nodeAdder(add) {
     return nodeManipulator(function (elem, node, clone, vars) {
         vars.frag = vars.frag || document.createDocumentFragment();
-        vars.frag.appendChild(node);
+        return vars.frag.appendChild(node);
     }, function (elem, nodes, clone, vars) {
         add(elem, clone ? vars.frag.cloneNode(true) : vars.frag, vars);
     });
@@ -77,14 +79,17 @@ features = (function () {
 usefulElement = document.createElement('div'),
 modify = {  
     'destroy': nodeManipulator(function (elem, node) {
+        var destroyed;
         if (node == 'self')
-            elem.parentNode.removeChild(elem);
+            destroyed = elem.parentNode.removeChild(elem);
         else if (node == 'all') {
+            destroyed = [];
             while (elem.lastChild) // Can't just use innerHTML = '' because it's read-only for some elements in IE
-                elem.removeChild(elem.lastChild);
+                destroyed.push(elem.removeChild(elem.lastChild));
         }
         else
-            elem.removeChild(node);
+            destroyed = elem.removeChild(node);
+        return destroyed;
     }),
     
     'top': nodeAdder(function (elem, frag) { elem.insertBefore(frag, elem.firstChild); }),
@@ -124,9 +129,7 @@ attr = {
         }
     },
     
-    'style': function (elem, value) {
-        Shrike.style(elem, value);
-    },
+    'style': function (elem, styles) { return Shrike.style(elem, styles); },
     
     'html': function (elem, value) {
         if (features.brokenInnerHTML && features.brokenInnerHTML(elem.nodeName)) {
@@ -154,7 +157,7 @@ attr = {
 
 Shrike.declaration = function (obj, func, init, cleanup) {
     function fn(selectors, properties) {
-        var pairs = [], elems, props, vars, returnval = [], i, j = 0, k, l, m, n;
+        var pairs = [], elems, props, vars, ret, returnval = [], i, j = 0, k, l, m, n, o;
         if (properties && !properties.nodeType)
             pairs.push(selectors.length == undefined ? [selectors] : selectors, properties, {});
         else {
@@ -167,22 +170,28 @@ Shrike.declaration = function (obj, func, init, cleanup) {
             elems = pairs[j];
             props = pairs[++j];
             vars = pairs[++j];
-            for (m = 0, n = elems.length; m < n; ++m) {
+            for (m = 0, n = elems.length, o = 0; m < n; ++m) {
                 if (init)
                     init(elems[m], vars);
                 for (l in props) {
                     if (hasOwn.call(props, l)) {
+                        ++o;
                         if (hasOwn.call(obj, l) && typeof obj[l] == 'function')
                             returnval.push(obj[l](elems[m], props[l], vars));
                         else if (func)
                             returnval.push(func(elems[m], l, props[l], vars));
                     }
                 }
-                if (cleanup)
-                    cleanup(elems[m], vars);
+                if (cleanup) {
+                    if ((ret = cleanup(elems[m], vars)) != undefined) {
+                        while (o--)
+                            returnval.pop();
+                        returnval.push(ret);
+                    }
+                }
             }
         }
-        return Array(returnval.length).join() == returnval ? // Check if the array is empty
+        return Array(returnval.length).join() == returnval ?
         [] : returnval.length == 1 ? returnval[0] : returnval;
     }
     fn.declaration = {properties: obj, missing: func, init: init, cleanup: cleanup};
@@ -253,7 +262,7 @@ Shrike.merge(Shrike, {
     },
     
     isArray: function (obj) {
-        return ({}).toString.call(obj) == '[object Array]';
+        return {}.toString.call(obj) == '[object Array]';
     },
     
     computedStyle: function (elem, prop) {
@@ -321,19 +330,20 @@ Shrike.merge(Shrike, {
     modify: Shrike.declaration(modify, function (elem, position, nodes) {
         var pos = parseInt(position);
         if (!isNaN(pos))
-            modify['before'](elem.children[pos - 1], nodes);
+            return modify['before'](elem.children[pos - 1], nodes);
     }),
     
     destroy: function (elem) {
-        Shrike.modify(elem.length != undefined ? elem : arguments, {'destroy': 'self'});
+        return Shrike.modify(elem.length != undefined ? elem : arguments, {'destroy': 'self'});
     },
     
     append: function (elem, child) {
         if (typeof child == 'string')
             child = Shrike.create.apply(Shrike, slice.call(arguments, 1));
-        Shrike.modify(elem, {'bottom': child});
+        return Shrike.modify(elem, {'bottom': child});
     },
     
+    // I need to think of a way to abstract these while still remaining usable with ADVANCED_OPTIMIZATIONS
     addClass: function (elem, cls) {
         Shrike.attr(elem, {'class': {add: cls}});
     },

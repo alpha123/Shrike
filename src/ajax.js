@@ -57,8 +57,8 @@ Shrike.ajax = function (selectors, props) {
         
         'get': function (elem, data) {
             var request = new XMLHttpRequest(); // I don't support IE 6 :-)
-            request.open('GET', [options.url, typeof data == 'string' ? data :
-            Shrike.toQueryString(data)].join('?'), true);
+            request.open('GET', options.url + '?' + (typeof data == 'string' ? data :
+                Shrike.toQueryString(data)), true);
             addReadyStateChange(request, successHandlers, errorHandlers, elem);
             request.send(null);
         },
