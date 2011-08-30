@@ -33,6 +33,31 @@ function nodeAdder(add) {
     });
 }
 
+function declarationWithGetter(declaration, getter) {
+    function fn(elems, prop) {
+        if (typeof prop == 'string') {
+            if (elems.length == undefined)
+                return getter(elems, prop);
+            for (var values = [], i = 0, l = elems.length; i < l; ++i)
+                values.push(getter(elems[i], prop));
+            return values;
+        }
+        return declaration.apply(Shrike, arguments);
+    }
+    fn.declaration = declaration.declaration;
+    fn.chain = function (elem, prop, value) {
+        var name, result;
+        if (value != undefined) {
+            name = prop;
+            prop = {};
+            prop[name] = value;
+        }
+        result = fn(elem, prop);
+        return typeof prop == 'string' ? result : this;
+    };
+    return fn;
+}
+
 function removeAll(array, obj) {
     for (var i = 0, l = array.length; i < l; ++i) {
         if (array[i] === obj)
@@ -153,7 +178,18 @@ attr = {
         else
             elem.textContent = value;
     }
-}, attrDeclaration;
+}, style = {
+    'float': function (elem, value) {
+        if (elem.style.cssFloat != undefined)
+            elem.style.cssFloat = value;
+        else
+            elem.style.styleFloat = value;
+    },
+    
+    'css': function (elem, value) {
+        elem.style.cssText = value;
+    }
+}, attrDeclaration, styleDeclaration;
 
 Shrike.declaration = function (obj, func, init, cleanup) {
     function fn(selectors, properties) {
@@ -206,6 +242,9 @@ attrDeclaration = Shrike.declaration(attr, function (elem, prop, value) {
     else
         elem.setAttribute(prop, value);
 });
+styleDeclaration = Shrike.declaration(style, function (elem, prop, value) {
+    elem.style[prop.replace(/\-(.)/g, function (_, $1) { return $1.toUpperCase(); })] = value;
+});
 
 Shrike.merge(Shrike, {
     extend: function () {
@@ -213,8 +252,6 @@ Shrike.merge(Shrike, {
         args.unshift({});
         return Shrike.merge.apply(Shrike, args);
     },
-    
-    inherit: Puma.Parser.create,
     
     each: function (obj, func, forceArray) {
         var i = 0, l = obj.length;
@@ -239,19 +276,6 @@ Shrike.merge(Shrike, {
         return keys;
     },
     
-    inspect: function (obj, sep, linesep, keyFunc, valueFunc) {
-        sep = sep || ': ';
-        function noop(x) { return x; }
-        keyFunc = keyFunc || noop;
-        valueFunc = valueFunc || noop;
-        var str = [], i;
-        for (i in obj) {
-            if (hasOwn.call(obj, i))
-                str.push([keyFunc(i), valueFunc(obj[i])].join(sep));
-        }
-        return str.join(linesep || '\n');
-    },
-    
     bind: function (func, thisObj, preArgs, postArgs) { // Intentionally not compatible with ES5
         return function () {
             var args = slice.call(arguments);
@@ -263,15 +287,6 @@ Shrike.merge(Shrike, {
     
     isArray: function (obj) {
         return {}.toString.call(obj) == '[object Array]';
-    },
-    
-    computedStyle: function (elem, prop) {
-        if (window.getComputedStyle)
-            return document.defaultView.getComputedStyle(elem, null).getPropertyValue(
-            prop.replace(/[A-Z]/, function ($0) { return '-' + $0.toLowerCase(); }));
-        else if (elem.currentStyle)
-            return elem.currentStyle[prop];
-        return 0;
     },
     
     // From http://www.quirksmode.org/js/findpos.html
@@ -356,19 +371,14 @@ Shrike.merge(Shrike, {
         Shrike.attr(elem, {'class': {toggle: cls}});
     },
 
-    attr: function (elems, attr) {
-        if (typeof attr == 'string') {
-            if (elems.length == undefined)
-                return Puma.getAttribute(elems, attr);
-            for (var values = [], i = 0, l = elems.length; i < l; ++i)
-                values.push(Puma.getAttribute(elems[i], attr));
-            return values;
-        }
-        return attrDeclaration.apply(Shrike, arguments);
-    },
+    attr: declarationWithGetter(attrDeclaration, Puma.getAttribute),
 
-    style: Shrike.declaration({}, function (elem, prop, value) {
-        elem.style[prop.replace(/\-(.)/g, function (_, $1) { return $1.toUpperCase(); })] = value;
+    style: declarationWithGetter(styleDeclaration, function (elem, prop) {
+        if (window.getComputedStyle) {
+            return document.defaultView.getComputedStyle(elem, null).getPropertyValue(
+                prop.replace(/[A-Z]/, function ($0) { return '-' + $0.toLowerCase(); }));
+        }
+        return elem.currentStyle[prop];
     }),
     
     chain: function (elems, base) {
@@ -417,20 +427,7 @@ Shrike.merge(Shrike, {
     features: features
 });
 
-Shrike.merge(Shrike.attr, {
-    properties: attr,
-    declaration: attrDeclaration.declaration,
-    chain: function (elem, attr, value) {
-        var name, result;
-        if (value != undefined) {
-            name = attr;
-            attr = {};
-            attr[name] = value;
-        }
-        result = Shrike.attr(elem, attr);
-        return typeof attr == 'string' ? result : this;
-    }
-});
+Shrike.attr.properties = attr;
 
 Shrike.each.chain = Shrike.each;
 
