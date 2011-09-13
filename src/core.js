@@ -1,7 +1,7 @@
-(function (window, document, Puma, undefined) {
+(function (window, document, Jaguar, undefined) {
 
 function Shrike() {
-    return Puma.apply(window, arguments);
+    return Jaguar.apply(window, arguments);
 }
 
 function nodeManipulator(func, after) {
@@ -83,7 +83,7 @@ Shrike.merge = function (obj) {
     return obj;
 };
 
-var old = window.Shrike, hasOwn = ({}).hasOwnProperty, slice = [].slice,
+var old = window.Shrike, hasOwn = {}.hasOwnProperty, slice = [].slice,
 features = (function () {
     var test = document.createElement('table'), features = {brokenInnerHTML: false},
     broken = ['COL', 'COLGROUP', 'FRAMESET', 'HEAD', 'HTML', 'STYLE', 'TABLE', 'TBODY', 'TFOOT',
@@ -95,10 +95,10 @@ features = (function () {
     }
     catch (e) {
         features.brokenInnerHTML = function (name) {
-            return Puma.arrayIndexOf(broken, name.toUpperCase()) > -1;
+            return Jaguar.indexOf(broken, name.toUpperCase()) > -1;
         };
     }
-    Shrike.merge(features, Puma.features);
+    Shrike.merge(features, Jaguar.features);
     return features;
 })(),
 usefulElement = document.createElement('div'),
@@ -141,7 +141,7 @@ attr = {
             }
             if (value.toggle) {
                 for (cls = value.toggle.split(' '), i = 0, l = cls.length; i < l; ++i) {
-                    if (Puma.arrayIndexOf(classes, cls[i]) < 0)
+                    if (Jaguar.indexOf(classes, cls[i]) < 0)
                         classes.push(cls[i]);
                     else
                         removeAll(classes, cls[i]);
@@ -199,7 +199,7 @@ Shrike.declaration = function (obj, func, init, cleanup) {
         else {
             for (i in selectors) {
                 if (hasOwn.call(selectors, i))
-                    pairs.push(Puma(i, properties), selectors[i], {});
+                    pairs.push(Jaguar(i, properties), selectors[i], {});
             }
         }
         for (k = pairs.length; j < k; ++j) {
@@ -237,8 +237,8 @@ Shrike.declaration = function (obj, func, init, cleanup) {
 attrDeclaration = Shrike.declaration(attr, function (elem, prop, value) {
     if (value == null)
         elem.removeAttribute(prop);
-    else if (Puma.fixAttrs[attr])
-        elem[Puma.fixAttrs[attr]] = value;
+    else if (Jaguar.fixAttrs[attr])
+        elem[Jaguar.fixAttrs[attr]] = value;
     else
         elem.setAttribute(prop, value);
 });
@@ -371,7 +371,7 @@ Shrike.merge(Shrike, {
         Shrike.attr(elem, {'class': {toggle: cls}});
     },
 
-    attr: declarationWithGetter(attrDeclaration, Puma.getAttribute),
+    attr: declarationWithGetter(attrDeclaration, Jaguar.getAttribute),
 
     style: declarationWithGetter(styleDeclaration, function (elem, prop) {
         if (window.getComputedStyle) {
@@ -383,7 +383,7 @@ Shrike.merge(Shrike, {
     
     chain: function (elems, base) {
         if (typeof elems == 'string')
-            elems = Puma(elems);
+            elems = Jaguar(elems);
         if (elems.length == undefined)
             elems = [elems];
         var chained = Shrike.extend(base || Shrike, function (func) {
@@ -433,4 +433,4 @@ Shrike.each.chain = Shrike.each;
 
 window.Shrike = Shrike;
 
-})(this, document, Puma);
+})(this, document, Jaguar);

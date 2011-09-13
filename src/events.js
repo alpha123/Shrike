@@ -1,4 +1,4 @@
-(function (Shrike, window, document, Puma, Wildcat, undefined) {
+(function (Shrike, window, document, Jaguar, Wildcat, undefined) {
 
 Shrike.addEvent = function (elem, event, func) {
     if (typeof event != 'string') {
@@ -122,8 +122,8 @@ Shrike.match = Wildcat ? function (elem, selector) {
             supports[selector] = false;
         }
     }
-    return (supports[selector] ? Wildcat.match : Puma.match)(elem, selector);
-} : Puma.match;
+    return (supports[selector] ? Wildcat.match : Jaguar.match)(elem, selector);
+} : Jaguar.match;
 
 Shrike.delegate = Shrike.declaration({}, function (elem, evt, delegates) {
     Shrike.each(delegates, function (fn, selector) {
@@ -150,4 +150,4 @@ Shrike.off = Shrike.declaration({}, function (elem, evt, func) {
 
 Shrike.attr.properties['on'] = Shrike.on;
 
-})(Shrike, this, document, Puma, this.Wildcat);
+})(Shrike, this, document, Jaguar, this.Wildcat);
