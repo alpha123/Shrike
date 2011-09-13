@@ -237,8 +237,8 @@ Shrike.declaration = function (obj, func, init, cleanup) {
 attrDeclaration = Shrike.declaration(attr, function (elem, prop, value) {
     if (value == null)
         elem.removeAttribute(prop);
-    else if (Jaguar.fixAttrs[attr])
-        elem[Jaguar.fixAttrs[attr]] = value;
+    else if (Jaguar.fixAttributes[attr])
+        elem[Jaguar.fixAttributes[attr]] = value;
     else
         elem.setAttribute(prop, value);
 });
@@ -304,27 +304,18 @@ Shrike.merge(Shrike, {
     },
     
     create: function (tag) {
-        var tokens = Puma.Scanner.tokenize(tag),
-        elem = document.createElement(tokens[0].value), i = 1, l = arguments.length,
-        j, k = 1, m = tokens.length, attr, arg,
+        var parsed = Jaguar.parse(tag)[0][0], elem = document.createElement(parsed.tag),
+        i = 1, l = arguments.length, j = 0, k = parsed.attrs.length, attr, attrObj, arg,
         frag = document.createDocumentFragment();
-        while (k < m) {
-            switch (tokens[k++].value) {
-                case '#':
-                    elem.id = tokens[k].value;
-                    break;
-                case '.':
-                    Shrike.attr(elem, {'class': {add: tokens[k].value}});
-                    break;
-                case '[':
-                    attr = {};
-                    attr[tokens[k].value] = tokens[k += 2].value;
-                    Shrike.attr(elem, attr);
-                    break;
-                case ':':
-                    if (tokens[k].value == 'contains')
-                        elem.innerHTML += tokens[k += 2].value;
-                    break;
+        if (parsed.id)
+            elem.id = parsed.id;
+        if (parsed.classes.length)
+            Shrike.addClass(elem, parsed.classes.join(' '));
+        for (; attr = parsed.attrs[j], j < k; ++j) {
+            if (attr.name == '=') {
+                attrObj = {};
+                attrObj[attr.args[0]] = attr.args[1];
+                Shrike.attr(elem, attrObj);
             }
         }
         while (i < l) {

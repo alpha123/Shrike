@@ -42,7 +42,7 @@ var push = [].push, opacity = {
 
 drag = {
     'handle': function (elem, value, vars) {
-        vars.handle = typeof value == 'string' ? Puma(value, elem) : value;
+        vars.handle = typeof value == 'string' ? Jaguar(value, elem) : value;
     },
     
     'start': function (elem, value, vars) {
