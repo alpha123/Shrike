@@ -1,4 +1,4 @@
-(function (window, document, Jaguar, undefined) {
+(function (window, document, Jaguar, parseInt, undefined) {
 
 function Shrike() {
     return Jaguar.apply(window, arguments);
@@ -334,7 +334,7 @@ Shrike.merge(Shrike, {
     },
     
     modify: Shrike.declaration(modify, function (elem, position, nodes) {
-        var pos = parseInt(position);
+        var pos = parseInt(position, 10);
         if (!isNaN(pos))
             return modify['before'](elem.children[pos - 1], nodes);
     }),
@@ -424,4 +424,4 @@ Shrike.each.chain = Shrike.each;
 
 window.Shrike = Shrike;
 
-})(this, document, Jaguar);
+})(this, document, Jaguar, parseInt);
