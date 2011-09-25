@@ -19,7 +19,7 @@ function nodeManipulator(func, after) {
             returnval.push(func(elem, nodes[i], clone, vars));
         if (after)
             after(elem, nodes, clone, vars);
-        return Array(returnval.length) == returnval ? // Check if the array is empty
+        return Array(returnval.length) + '' == returnval ? // Check if the array is empty (contains only undefined values)
         undefined : returnval.length == 1 ? returnval[0] : returnval;
     };
 }
@@ -227,7 +227,7 @@ Shrike.declaration = function (obj, func, init, cleanup) {
                 }
             }
         }
-        return Array(returnval.length).join() == returnval ?
+        return Array(returnval.length) + '' == returnval ?
         [] : returnval.length == 1 ? returnval[0] : returnval;
     }
     fn.declaration = {properties: obj, missing: func, init: init, cleanup: cleanup};
