@@ -257,12 +257,12 @@ Shrike.merge(Shrike, {
         var i = 0, l = obj.length;
         if (forceArray == undefined ? Shrike.isArray(obj) : forceArray) {
             for (; i < l; ++i)
-                func.call(obj, obj[i], i);
+                func(obj[i], i, obj);
         }
         else {
             for (i in obj) {
                 if (hasOwn.call(obj, i))
-                    func.call(obj, obj[i], i);
+                    func(obj[i], i, obj);
             }
         }
         return obj;
